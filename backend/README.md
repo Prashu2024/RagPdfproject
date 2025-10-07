@@ -281,26 +281,3 @@ Enable debug mode for detailed error messages:
 ```bash
 export DEBUG=True
 ```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the troubleshooting section
-- Review the API documentation
-
----
-
-**Note**: This is a backend implementation. A separate frontend application is required for a complete user interface.

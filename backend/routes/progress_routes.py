@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List, Optional
 from config.database import get_db
 from services.analytics_service import analytics_service
@@ -189,6 +190,7 @@ async def get_overall_stats(db: Session = Depends(get_db)):
     """
     try:
         from models.pdf_model import User, QuizAttempt, PDF
+        from datetime import datetime, timedelta
         
         # Get basic counts
         total_users = db.query(User).count()
@@ -200,9 +202,10 @@ async def get_overall_stats(db: Session = Depends(get_db)):
             QuizAttempt.score.isnot(None)
         ).scalar() or 0
         
-        # Get recent activity
+        # Get recent activity (last 7 days) - SQLite compatible
+        seven_days_ago = datetime.utcnow() - timedelta(days=7)
         recent_attempts = db.query(QuizAttempt).filter(
-            QuizAttempt.completed_at >= func.now() - func.interval('7 days')
+            QuizAttempt.completed_at >= seven_days_ago
         ).count()
         
         return {

@@ -1,5 +1,7 @@
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from fastapi.responses import FileResponse
+from fastapi import Response
 from sqlalchemy.orm import Session
 import os
 import uuid
@@ -266,6 +268,42 @@ async def get_pdf_chunks(pdf_id: int, db: Session = Depends(get_db)):
                 "total_chunks": len(chunk_schemas)
             }
         }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/{pdf_id}/file")
+async def get_pdf_file(
+    pdf_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Serve the PDF file for viewing
+    """
+    try:
+        pdf = db.query(PDF).filter(PDF.id == pdf_id).first()
+        if not pdf:
+            raise HTTPException(status_code=404, detail="PDF not found")
+        
+        file_path = Path(pdf.filepath)
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail="PDF file not found on disk")
+        
+        response = FileResponse(
+            path=str(file_path),
+            media_type="application/pdf",
+            filename=pdf.filename
+        )
+        
+        # Add CORS headers for PDF viewing
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        
+        return response
         
     except HTTPException:
         raise

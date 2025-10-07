@@ -80,7 +80,7 @@ class QuizGenerator:
         """
         try:
             # Get text chunks for the PDF
-            from ..models.pdf_model import TextChunk
+            from models.pdf_model import TextChunk
             
             chunks = db_session.query(TextChunk).filter(TextChunk.pdf_id == pdf_id).all()
             
@@ -98,6 +98,47 @@ class QuizGenerator:
             
         except Exception as e:
             raise Exception(f"Error generating quiz from PDF: {str(e)}")
+    
+    def generate_quiz_from_all_pdfs(self, db_session, quiz_type: str = "MCQ", num_questions: int = 5) -> QuizResponse:
+        """
+        Generate quiz from all processed PDFs
+        
+        Args:
+            db_session: Database session
+            quiz_type: Type of quiz (MCQ, SAQ, LAQ)
+            num_questions: Number of questions to generate
+            
+        Returns:
+            QuizResponse object with generated questions
+        """
+        try:
+            # Get text chunks from all processed PDFs
+            from models.pdf_model import TextChunk, PDF
+            
+            # Get all processed PDFs
+            processed_pdfs = db_session.query(PDF).filter(PDF.processed == True).all()
+            
+            if not processed_pdfs:
+                raise Exception("No processed PDFs available")
+            
+            # Get chunks from all processed PDFs
+            pdf_ids = [pdf.id for pdf in processed_pdfs]
+            chunks = db_session.query(TextChunk).filter(TextChunk.pdf_id.in_(pdf_ids)).all()
+            
+            if not chunks:
+                raise Exception("No text chunks found in any processed PDFs")
+            
+            # Combine chunks for quiz generation
+            combined_content = " ".join([chunk.chunk_text for chunk in chunks])
+            
+            # Limit content length for LLM
+            if len(combined_content) > 12000:  # Slightly larger limit for multiple PDFs
+                combined_content = combined_content[:12000] + "... [content truncated]"
+            
+            return self.generate_quiz_from_content(combined_content, quiz_type, num_questions)
+            
+        except Exception as e:
+            raise Exception(f"Error generating quiz from all PDFs: {str(e)}")
     
     def evaluate_quiz_answers(self, questions: List[QuizQuestion], user_answers: List[str]) -> Dict:
         """

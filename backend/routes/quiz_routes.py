@@ -18,20 +18,15 @@ router = APIRouter()
 
 @router.post("/generate")
 async def generate_quiz(
-    pdf_id: int,
+    pdf_id: int = None,
     quiz_type: str = "MCQ",
     num_questions: int = 5,
     db: Session = Depends(get_db)
 ):
     """
-    Generates a quiz from the specified PDF.
+    Generates a quiz from the specified PDF or all PDFs if no PDF is specified.
     """
     try:
-        # Validate PDF exists
-        pdf = db.query(PDF).filter(PDF.id == pdf_id).first()
-        if not pdf:
-            raise HTTPException(status_code=404, detail="PDF not found")
-        
         # Validate quiz type
         valid_quiz_types = ["MCQ", "SAQ", "LAQ"]
         if quiz_type not in valid_quiz_types:
@@ -44,8 +39,26 @@ async def generate_quiz(
         # Get current user (simplified)
         user_id = 1  # For demo purposes
         
-        # Generate quiz
-        quiz_response = quiz_generator.generate_quiz_from_pdf(pdf_id, db, quiz_type, num_questions)
+        if pdf_id is not None:
+            # Generate quiz from specific PDF
+            pdf = db.query(PDF).filter(PDF.id == pdf_id).first()
+            if not pdf:
+                raise HTTPException(status_code=404, detail="PDF not found")
+            
+            # Check if PDF is processed
+            if not pdf.processed:
+                raise HTTPException(status_code=400, detail="PDF is not processed yet. Please wait for processing to complete.")
+            
+            # Generate quiz from specific PDF
+            quiz_response = quiz_generator.generate_quiz_from_pdf(pdf_id, db, quiz_type, num_questions)
+        else:
+            # Generate quiz from all processed PDFs
+            processed_pdfs = db.query(PDF).filter(PDF.processed == True).all()
+            if not processed_pdfs:
+                raise HTTPException(status_code=400, detail="No processed PDFs available for quiz generation")
+            
+            # Generate quiz from all PDFs
+            quiz_response = quiz_generator.generate_quiz_from_all_pdfs(db, quiz_type, num_questions)
         
         # Create quiz attempt record
         quiz_attempt = QuizAttempt(
@@ -78,6 +91,77 @@ async def generate_quiz(
         
     except HTTPException:
         raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/statistics")
+async def get_quiz_statistics(
+    pdf_id: Optional[int] = None,
+    user_id: Optional[int] = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Get quiz statistics.
+    """
+    try:
+        from sqlalchemy import func
+        
+        # Build query
+        query = db.query(QuizAttempt)
+        
+        if pdf_id:
+            query = query.filter(QuizAttempt.pdf_id == pdf_id)
+        
+        if user_id:
+            query = query.filter(QuizAttempt.user_id == user_id)
+        
+        # Get statistics
+        total_attempts = query.count()
+        average_score = db.query(func.avg(QuizAttempt.score)).filter(
+            QuizAttempt.score.isnot(None)
+        ).scalar() or 0
+        
+        # Get score distribution
+        from sqlalchemy import case
+        
+        score_case = case(
+            (QuizAttempt.score >= 80, 'Excellent'),
+            (QuizAttempt.score >= 60, 'Good'),
+            (QuizAttempt.score >= 40, 'Average'),
+            else_='Poor'
+        )
+        
+        score_distribution = db.query(
+            score_case.label('category'),
+            func.count(QuizAttempt.id).label('count')
+        ).filter(
+            QuizAttempt.score.isnot(None)
+        ).group_by(score_case).all()
+        
+        # Get quiz type distribution
+        quiz_type_distribution = db.query(
+            QuizAttempt.quiz_type,
+            func.count(QuizAttempt.id).label('count')
+        ).filter(
+            QuizAttempt.score.isnot(None)
+        ).group_by(QuizAttempt.quiz_type).all()
+        
+        return {
+            "success": True,
+            "data": {
+                "total_attempts": total_attempts,
+                "average_score": round(average_score, 2),
+                "score_distribution": [
+                    {"category": category, "count": count}
+                    for category, count in score_distribution
+                ],
+                "quiz_type_distribution": [
+                    {"type": quiz_type, "count": count}
+                    for quiz_type, count in quiz_type_distribution
+                ]
+            }
+        }
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -168,7 +252,9 @@ async def submit_quiz(
         
         # Update quiz attempt
         quiz_attempt.score = evaluation_result['score']
-        quiz_attempt.answers = json.dumps(submission.answers)
+        # Convert QuizAnswer objects to dictionaries for JSON serialization
+        answers_dict = [answer.dict() for answer in submission.answers]
+        quiz_attempt.answers = json.dumps(answers_dict)
         db.commit()
         
         # Update user progress
@@ -279,79 +365,5 @@ async def get_pdf_quiz_attempts(
         
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.get("/statistics")
-async def get_quiz_statistics(
-    pdf_id: Optional[int] = None,
-    user_id: Optional[int] = None,
-    db: Session = Depends(get_db)
-):
-    """
-    Get quiz statistics.
-    """
-    try:
-        from sqlalchemy import func
-        
-        # Build query
-        query = db.query(QuizAttempt)
-        
-        if pdf_id:
-            query = query.filter(QuizAttempt.pdf_id == pdf_id)
-        
-        if user_id:
-            query = query.filter(QuizAttempt.user_id == user_id)
-        
-        # Get statistics
-        total_attempts = query.count()
-        average_score = db.query(func.avg(QuizAttempt.score)).filter(
-            QuizAttempt.score.isnot(None)
-        ).scalar() or 0
-        
-        # Get score distribution
-        score_distribution = db.query(
-            func.case(
-                (QuizAttempt.score >= 80, 'Excellent'),
-                (QuizAttempt.score >= 60, 'Good'),
-                (QuizAttempt.score >= 40, 'Average'),
-                else_='Poor'
-            ).label('category'),
-            func.count(QuizAttempt.id).label('count')
-        ).filter(
-            QuizAttempt.score.isnot(None)
-        ).group_by(
-            func.case(
-                (QuizAttempt.score >= 80, 'Excellent'),
-                (QuizAttempt.score >= 60, 'Good'),
-                (QuizAttempt.score >= 40, 'Average'),
-                else_='Poor'
-            )
-        ).all()
-        
-        # Get quiz type distribution
-        quiz_type_distribution = db.query(
-            QuizAttempt.quiz_type,
-            func.count(QuizAttempt.id).label('count')
-        ).filter(
-            QuizAttempt.score.isnot(None)
-        ).group_by(QuizAttempt.quiz_type).all()
-        
-        return {
-            "success": True,
-            "data": {
-                "total_attempts": total_attempts,
-                "average_score": round(average_score, 2),
-                "score_distribution": [
-                    {"category": category, "count": count}
-                    for category, count in score_distribution
-                ],
-                "quiz_type_distribution": [
-                    {"type": quiz_type, "count": count}
-                    for quiz_type, count in quiz_type_distribution
-                ]
-            }
-        }
-        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

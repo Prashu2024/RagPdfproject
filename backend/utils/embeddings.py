@@ -117,7 +117,7 @@ class EmbeddingService:
             # Build filter if PDF ID is specified
             filter_dict = None
             if pdf_id is not None:
-                filter_dict = {"pdf_id": str(pdf_id)}
+                filter_dict = {"pdf_id": pdf_id}
             
             # Perform similarity search
             results = self.vector_store.similarity_search_with_score(
@@ -205,7 +205,7 @@ class EmbeddingService:
         try:
             # Get all embeddings for this PDF
             results = self.vector_store.get(
-                where={"pdf_id": str(pdf_id)}
+                where={"pdf_id": pdf_id}
             )
             
             if results['ids']:

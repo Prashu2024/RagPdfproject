@@ -21,7 +21,7 @@ class PDFBase(BaseModel):
     filepath: str
 
 class PDFCreate(PDFBase):
-    pass
+    user_id: int
 
 class PDF(PDFBase):
     id: int

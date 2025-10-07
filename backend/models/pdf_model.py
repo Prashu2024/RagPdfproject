@@ -1,17 +1,7 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Float, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import Column, Integer, String, DateTime, Text, Float, ForeignKey, Boolean
+from sqlalchemy.orm import relationship
 import datetime
-from config.database import DATABASE_URL
-
-# Create SQLAlchemy engine
-engine = create_engine(DATABASE_URL)
-
-# Create SessionLocal class
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Create Base class for models
-Base = declarative_base()
+from config.database import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -34,7 +24,7 @@ class PDF(Base):
     filepath = Column(String(500), unique=True, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"))
     uploaded_at = Column(DateTime, default=datetime.datetime.utcnow)
-    processed = Column(DateTime, nullable=True)
+    processed = Column(Boolean, default=False, nullable=False)
     page_count = Column(Integer, nullable=True)
     file_size = Column(Integer, nullable=True)
 
@@ -84,8 +74,3 @@ class UserProgress(Base):
 
     # Relationships
     user = relationship("User", back_populates="progress")
-
-# The following function can be used to create the table in your database.
-# You would typically run this once when your application starts.
-def create_tables():
-    Base.metadata.create_all(bind=engine)

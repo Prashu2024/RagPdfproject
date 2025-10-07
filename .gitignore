@@ -1,4 +1,433 @@
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 backend/.env
-backend/venv/
+frontend/.env
+
+# Python
 __pycache__/
-backend/uploads/pdfs/*.pdf
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+backend/venv/
+frontend/venv/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+backend/pdf_app.db
+backend/*.db
+
+# ChromaDB
+backend/chroma/
+chroma/
+*.chroma
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# node_modules
+node_modules/
+frontend/node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+storybook-static
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Uploaded files
+backend/uploads/
+uploads/
+*.pdf
+!sample.pdf
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+
+# Frontend build outputs
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/out/
+
+# Frontend dependencies
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.js
+
+# Frontend testing
+frontend/coverage/
+
+# Frontend environment
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Frontend logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/lerna-debug.log*
+
+# Frontend runtime data
+frontend/pids
+frontend/*.pid
+frontend/*.seed
+frontend/*.pid.lock
+
+# Frontend coverage directory
+frontend/coverage/
+frontend/*.lcov
+
+# Frontend nyc test coverage
+frontend/.nyc_output
+
+# Frontend Grunt intermediate storage
+frontend/.grunt
+
+# Frontend Bower dependency directory
+frontend/bower_components
+
+# Frontend node-waf configuration
+frontend/.lock-wscript
+
+# Frontend compiled binary addons
+frontend/build/Release
+
+# Frontend dependency directories
+frontend/node_modules/
+frontend/jspm_packages/
+
+# Frontend TypeScript cache
+frontend/*.tsbuildinfo
+
+# Frontend Optional npm cache directory
+frontend/.npm
+
+# Frontend Optional eslint cache
+frontend/.eslintcache
+
+# Frontend Microbundle cache
+frontend/.rpt2_cache/
+frontend/.rts2_cache_cjs/
+frontend/.rts2_cache_es/
+frontend/.rts2_cache_umd/
+
+# Frontend Optional REPL history
+frontend/.node_repl_history
+
+# Frontend Output of 'npm pack'
+frontend/*.tgz
+
+# Frontend Yarn Integrity file
+frontend/.yarn-integrity
+
+# Frontend parcel-bundler cache
+frontend/.cache
+frontend/.parcel-cache
+
+# Frontend Next.js build output
+frontend/.next
+frontend/out
+
+# Frontend Nuxt.js build / generate output
+frontend/.nuxt
+frontend/dist
+
+# Frontend Gatsby files
+frontend/.cache/
+frontend/public
+
+# Frontend Storybook build outputs
+frontend/.out
+frontend/.storybook-out
+frontend/storybook-static
+
+# Frontend Temporary folders
+frontend/tmp/
+frontend/temp/
+
+# Test files
+test_*.py
+*_test.py
+tests/test_*.py
+
+# Documentation
+docs/_build/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# IDE files
+*.sublime-project
+*.sublime-workspace
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Docker
+.dockerignore
+Dockerfile.dev
+docker-compose.override.yml
+
+# Kubernetes
+*.kubeconfig
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Ansible
+*.retry
+
+# Vagrant
+.vagrant/
+
+# Packer
+packer_cache/
+
+# Local development
+.local/
+local/
