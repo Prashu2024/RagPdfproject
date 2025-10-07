@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+langchain
+langchain-openai
+langchain-chroma
+pypdf
+python-dotenv
+pydantic-settings
+openai
+PyMuPDF
+requests
+python-multipart
