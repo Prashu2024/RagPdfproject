@@ -92,7 +92,7 @@ const Dashboard = ({ pdfs, selectedPDF, onSelectPDF }) => {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 mb-8">
           <div className="card">
             <div className="flex items-center justify-between">
               <div>
@@ -146,7 +146,7 @@ const Dashboard = ({ pdfs, selectedPDF, onSelectPDF }) => {
       {/* Quick Actions */}
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {quickActions.map((action) => {
             const Icon = action.icon;
             return (
@@ -173,7 +173,7 @@ const Dashboard = ({ pdfs, selectedPDF, onSelectPDF }) => {
       {pdfs.length > 0 && (
         <div>
           <h2 className="text-xl font-semibold mb-4">Your PDFs</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {pdfs.map((pdf) => (
               <div key={pdf.id} className="card hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between mb-3">

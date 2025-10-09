@@ -163,14 +163,14 @@ const PDFViewer = ({ pdfs, selectedPDF }) => {
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       {/* Toolbar */}
-      <div className="bg-white border-b border-gray-200 p-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
+      <div className="bg-white border-b border-gray-200 p-2 sm:p-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 max-w-7xl mx-auto">
           <div>
             <h2 className="text-lg font-semibold">{currentPDF.filename}</h2>
             <p className="text-sm text-gray-600">{currentPDF.page_count} pages</p>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
             <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-2">
               <button
                 onClick={() => setZoom(Math.max(0.5, zoom - 0.1))}
@@ -193,10 +193,11 @@ const PDFViewer = ({ pdfs, selectedPDF }) => {
               href={`http://localhost:8000/api/pdfs/${currentPDF.id}/file`}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-secondary flex items-center gap-2"
+              className="btn-secondary flex items-center gap-2 text-sm sm:text-base"
             >
               <Download className="w-4 h-4" />
-              Open PDF
+              <span className="hidden sm:inline">Open PDF</span>
+              <span className="sm:hidden">Open</span>
             </a>
           </div>
         </div>
@@ -207,7 +208,7 @@ const PDFViewer = ({ pdfs, selectedPDF }) => {
         <div className="h-full w-full flex flex-col">
 
             {/* PDF Content */}
-            <div className="flex-1 overflow-auto p-4">
+            <div className="flex-1 overflow-auto p-2 sm:p-4">
               {loading ? (
                 <div className="flex flex-col items-center gap-4 py-12">
                   <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
@@ -243,21 +244,21 @@ const PDFViewer = ({ pdfs, selectedPDF }) => {
                 <div className="flex flex-col items-center">
                   {/* Page Navigation */}
                   {numPages && (
-                    <div className="flex items-center gap-4 mb-4 bg-white rounded-lg shadow-sm p-3">
+                    <div className="flex items-center gap-2 sm:gap-4 mb-4 bg-white rounded-lg shadow-sm p-2 sm:p-3 w-full max-w-md">
                       <button
                         onClick={goToPrevPage}
                         disabled={pageNumber <= 1}
-                        className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
-                      <span className="text-sm font-medium">
+                      <span className="text-xs sm:text-sm font-medium text-center flex-1">
                         Page {pageNumber} of {numPages}
                       </span>
                       <button
                         onClick={goToNextPage}
                         disabled={pageNumber >= numPages}
-                        className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                       >
                         <ChevronRight className="w-4 h-4" />
                       </button>
@@ -290,7 +291,7 @@ const PDFViewer = ({ pdfs, selectedPDF }) => {
                   )}
 
                   {/* Download Link and Test Button */}
-                  <div className="mt-4 flex gap-2 justify-center">
+                  <div className="mt-4 flex flex-col sm:flex-row gap-2 justify-center">
                     <a 
                       href={`http://localhost:8000/api/pdfs/${currentPDF.id}/file`}
                       target="_blank"
@@ -298,7 +299,8 @@ const PDFViewer = ({ pdfs, selectedPDF }) => {
                       className="btn-secondary inline-flex items-center gap-2 text-sm"
                     >
                       <Download className="w-4 h-4" />
-                      Open PDF in New Tab
+                      <span className="hidden sm:inline">Open PDF in New Tab</span>
+                      <span className="sm:hidden">Open in New Tab</span>
                     </a>
                     <button
                       onClick={async () => {
@@ -320,7 +322,8 @@ const PDFViewer = ({ pdfs, selectedPDF }) => {
                       }}
                       className="btn-primary inline-flex items-center gap-2 text-sm"
                     >
-                      Test PDF Fetch
+                      <span className="hidden sm:inline">Test PDF Fetch</span>
+                      <span className="sm:hidden">Test Fetch</span>
                     </button>
                   </div>
                 </div>

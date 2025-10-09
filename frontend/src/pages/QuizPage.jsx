@@ -107,7 +107,7 @@ const QuizPage = ({ selectedPDF, pdfs }) => {
         <div className="card mb-8">
           <h2 className="text-xl font-semibold mb-4">Configure Your Quiz</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
             <div>
               <label className="block text-sm font-medium mb-2">Quiz Type</label>
               <select
@@ -138,7 +138,7 @@ const QuizPage = ({ selectedPDF, pdfs }) => {
           <button
             onClick={generateQuiz}
             disabled={generating}
-            className="btn-primary w-full md:w-auto flex items-center justify-center gap-2"
+            className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2"
           >
             {generating ? (
               <>

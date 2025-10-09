@@ -60,7 +60,7 @@ const Sidebar = ({ pdfs, selectedPDF, onSelectPDF, onUploadPDF, onDeletePDF, isO
     return (
       <button
         onClick={onToggle}
-        className="fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg hover:bg-gray-50"
+        className="fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg hover:bg-gray-50 md:hidden"
       >
         <ChevronRight className="w-6 h-6" />
       </button>
@@ -68,7 +68,15 @@ const Sidebar = ({ pdfs, selectedPDF, onSelectPDF, onUploadPDF, onDeletePDF, isO
   }
 
   return (
-    <div className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col z-40">
+    <>
+      {/* Mobile overlay */}
+      <div 
+        className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+        onClick={onToggle}
+      />
+      
+      {/* Sidebar */}
+      <div className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col z-40 md:relative md:z-auto">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 flex items-center justify-between">
         <h1 className="text-xl font-bold text-primary-600">RAG Learning</h1>
@@ -180,7 +188,8 @@ const Sidebar = ({ pdfs, selectedPDF, onSelectPDF, onUploadPDF, onDeletePDF, isO
           })}
         </nav>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
