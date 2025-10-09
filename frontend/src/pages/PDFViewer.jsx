@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { FileText, ZoomIn, ZoomOut, Download, Loader2, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Document, Page, pdfjs } from 'react-pdf';
 
-// Set up PDF.js worker - try local first, fallback to CDN
-try {
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.js',
-    import.meta.url,
-  ).toString();
-} catch (error) {
-  console.warn('Failed to load local PDF worker, using CDN fallback');
-  pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
-}
+// Set up PDF.js worker with version matching
+console.log('Setting up PDF.js worker...');
+console.log('PDF.js version:', pdfjs.version);
+
+// Set worker to match the exact version
+console.log('PDF.js API version:', pdfjs.version);
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+console.log('PDF.js worker configured with version:', pdfjs.version);
 
 // Add some basic styles for react-pdf
 const pdfStyles = `
@@ -46,6 +44,8 @@ const PDFViewer = ({ pdfs, selectedPDF }) => {
   const [error, setError] = useState(null);
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
+  const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
+  const currentBlobUrlRef = useRef(null);
 
   const currentPDF = pdfs.find(p => p.id === selectedPDF);
 
@@ -68,14 +68,53 @@ const PDFViewer = ({ pdfs, selectedPDF }) => {
       setPageNumber(1);
       setNumPages(null);
       
-      // Set a timeout to stop loading after 10 seconds
+      // Clean up previous blob URL
+      if (currentBlobUrlRef.current) {
+        URL.revokeObjectURL(currentBlobUrlRef.current);
+        setPdfBlobUrl(null);
+      }
+      
+      // Fetch PDF as blob and create blob URL
+      const fetchPDF = async () => {
+        try {
+          console.log('Fetching PDF as blob...');
+          const response = await fetch(`http://localhost:8000/api/pdfs/${currentPDF.id}/file`);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          const blob = await response.blob();
+          console.log('PDF blob created:', blob.size, 'bytes, type:', blob.type);
+          
+          const blobUrl = URL.createObjectURL(blob);
+          console.log('Blob URL created:', blobUrl);
+          currentBlobUrlRef.current = blobUrl;
+          setPdfBlobUrl(blobUrl);
+          setLoading(false);
+        } catch (error) {
+          console.error('Error fetching PDF:', error);
+          setError(`Failed to load PDF: ${error.message}`);
+          setLoading(false);
+        }
+      };
+      
+      fetchPDF();
+      
+      // Set a timeout to stop loading after 30 seconds
       const timeout = setTimeout(() => {
         console.log('PDF loading timeout reached');
+        console.log('PDF URL:', `http://localhost:8000/api/pdfs/${currentPDF.id}/file`);
+        console.log('Worker source:', pdfjs.GlobalWorkerOptions.workerSrc);
         setLoading(false);
         setError('PDF loading timeout - please try again');
-      }, 10000);
+      }, 30000);
       
-      return () => clearTimeout(timeout);
+      return () => {
+        clearTimeout(timeout);
+        if (currentBlobUrlRef.current) {
+          URL.revokeObjectURL(currentBlobUrlRef.current);
+        }
+      };
     }
   }, [currentPDF]);
 
@@ -89,6 +128,8 @@ const PDFViewer = ({ pdfs, selectedPDF }) => {
   const onDocumentLoadError = (error) => {
     console.error('PDF load error:', error);
     console.error('Error details:', error.message, error.name);
+    console.error('PDF URL:', `http://localhost:8000/api/pdfs/${currentPDF.id}/file`);
+    console.error('Worker source:', pdfjs.GlobalWorkerOptions.workerSrc);
     setError(`Failed to load PDF: ${error.message}`);
     setLoading(false);
   };
@@ -224,27 +265,29 @@ const PDFViewer = ({ pdfs, selectedPDF }) => {
                   )}
 
                   {/* PDF Document */}
-                  <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <Document
-                      file={`http://localhost:8000/api/pdfs/${currentPDF.id}/file`}
-                      onLoadSuccess={onDocumentLoadSuccess}
-                      onLoadError={onDocumentLoadError}
-                      onLoadProgress={onDocumentLoadProgress}
-                      loading={
-                        <div className="flex items-center justify-center p-8">
-                          <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-                        </div>
-                      }
-                    >
-                      <Page
-                        pageNumber={pageNumber}
-                        scale={zoom}
-                        renderTextLayer={false}
-                        renderAnnotationLayer={false}
-                        className="pdf-page"
-                      />
-                    </Document>
-                  </div>
+                  {pdfBlobUrl && (
+                    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                      <Document
+                        file={pdfBlobUrl}
+                        onLoadSuccess={onDocumentLoadSuccess}
+                        onLoadError={onDocumentLoadError}
+                        onLoadProgress={onDocumentLoadProgress}
+                        loading={
+                          <div className="flex items-center justify-center p-8">
+                            <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                          </div>
+                        }
+                      >
+                        <Page
+                          pageNumber={pageNumber}
+                          scale={zoom}
+                          renderTextLayer={false}
+                          renderAnnotationLayer={false}
+                          className="pdf-page"
+                        />
+                      </Document>
+                    </div>
+                  )}
 
                   {/* Download Link and Test Button */}
                   <div className="mt-4 flex gap-2 justify-center">
@@ -261,10 +304,16 @@ const PDFViewer = ({ pdfs, selectedPDF }) => {
                       onClick={async () => {
                         try {
                           console.log('Testing PDF fetch...');
+                          console.log('PDF URL:', `http://localhost:8000/api/pdfs/${currentPDF.id}/file`);
                           const response = await fetch(`http://localhost:8000/api/pdfs/${currentPDF.id}/file`);
                           console.log('PDF fetch response:', response.status, response.headers.get('content-type'));
-                          const blob = await response.blob();
-                          console.log('PDF blob size:', blob.size, 'type:', blob.type);
+                          if (response.ok) {
+                            const blob = await response.blob();
+                            console.log('PDF blob size:', blob.size, 'type:', blob.type);
+                            console.log('PDF fetch successful!');
+                          } else {
+                            console.error('PDF fetch failed with status:', response.status);
+                          }
                         } catch (error) {
                           console.error('PDF fetch error:', error);
                         }
